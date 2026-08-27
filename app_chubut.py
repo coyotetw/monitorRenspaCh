@@ -87,11 +87,19 @@ if not df.empty:
 
     with col_mapa:
         st.subheader("Geolocalización Logística")
-        if not df_geo_filtrado.empty:
+        # Por seguridad de los datos: no se muestra establecimiento ni coordenadas,
+        # y solo se grafican puntos con stock ovino declarado (> 0)
+        df_geo_mapa = df_geo_filtrado[df_geo_filtrado['total ovinos'] > 0]
+        if not df_geo_mapa.empty:
             fig_mapa = px.scatter_map(
-                df_geo_filtrado, lat="latitud", lon="longitud", size="total ovinos",
-                color="total ovinos", hover_name="establecimiento" if 'establecimiento' in df_geo_filtrado.columns else None,
-                hover_data=["juzgado de paz", "total ovinos"],
+                df_geo_mapa, lat="latitud", lon="longitud", size="total ovinos",
+                color="total ovinos", hover_name=None,
+                hover_data={
+                    "latitud": False,
+                    "longitud": False,
+                    "juzgado de paz": True,
+                    "total ovinos": True,
+                },
                 color_continuous_scale=px.colors.sequential.YlOrBr, size_max=25,
                 zoom=4.5 if depto_seleccionado == "TODA LA PROVINCIA" else 7,
                 center={"lat": -43.8, "lon": -68.5} if depto_seleccionado == "TODA LA PROVINCIA" else None,
